@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
+import { protect } from './authMiddleware.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -111,6 +112,63 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ errors: error.errors });
     }
     return res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+});
+
+app.get('/api/notes', protect, async (req, res) => {
+  try {
+    const notes = await prisma.note.findMany({
+      where: { authorId: req.userId }, // req.userId is from the 'protect' middleware
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(notes);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar notas.' });
+  }
+});
+
+
+app.post('/api/notes', protect, async (req, res) => {
+  try {
+    const { title, content } = req.body;
+    if (!title || !content) {
+      return res.status(400).json({ message: 'Título e conteúdo são obrigatórios.' });
+    }
+
+    const newNote = await prisma.note.create({
+      data: {
+        title,
+        content,
+        authorId: req.userId,
+      },
+    });
+    res.status(201).json(newNote);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao criar nota.' });
+  }
+});
+
+
+app.delete('/api/notes/:id', protect, async (req, res) => {
+  try {
+    const noteId = req.params.id;
+
+    
+    const note = await prisma.note.findUnique({
+      where: { id: noteId },
+    });
+
+    if (!note || note.authorId !== req.userId) {
+      return res.status(404).json({ message: 'Nota não encontrada ou não autorizada.' });
+    }
+
+    await prisma.note.delete({
+      where: { id: noteId },
+    });
+
+    res.status(204).send(); // 204 No Content
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao deletar nota.' });
   }
 });
 
