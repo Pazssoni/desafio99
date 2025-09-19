@@ -6,6 +6,7 @@ import { z } from 'zod';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 import { protect } from './authMiddleware.js';
+import axios from 'axios';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -169,6 +170,54 @@ app.delete('/api/notes/:id', protect, async (req, res) => {
     res.status(204).send(); // 204 No Content
   } catch (error) {
     res.status(500).json({ message: 'Erro ao deletar nota.' });
+  }
+});
+
+// GET /api/widgets/weather - Obter clima (versão mockada)
+app.get('/api/widgets/weather', protect, (req, res) => {
+  const mockWeather = {
+    city: 'Lisboa',
+    temperature: '19°C',
+    condition: 'Parcialmente Nublado',
+  };
+  res.json(mockWeather);
+});
+
+// GET /api/widgets/github?user=... - Listar repositórios de um usuário no GitHub
+app.get('/api/widgets/github', protect, async (req, res) => {
+  try {
+    const { user } = req.query;
+    if (!user) {
+      return res.status(400).json({ message: 'Parâmetro "user" é obrigatório.' });
+    }
+    const response = await axios.get(`https://api.github.com/users/${user}/repos?sort=updated&per_page=5`);
+    const repos = response.data.map(repo => ({
+      id: repo.id,
+      name: repo.name,
+      url: repo.html_url,
+      stars: repo.stargazers_count,
+    }));
+    res.json(repos);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({ message: 'Erro ao buscar repositórios do GitHub.' });
+  }
+});
+
+// GET /api/widgets/pokemon - Obter um Pokémon aleatório para o jogo
+app.get('/api/widgets/pokemon', protect, async (req, res) => {
+  try {
+    // Sorteia um ID de Pokémon de uma geração relevante (1 a 898 - Gen 1 a 8)
+    const randomId = Math.floor(Math.random() * 898) + 1;
+    const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${randomId}`);
+
+    // Retorna apenas os dados necessários para o jogo
+    const pokemonData = {
+      name: response.data.name,
+      image: response.data.sprites.other['official-artwork'].front_default,
+    };
+    res.json(pokemonData);
+  } catch (error) {
+    res.status(error.response?.status || 500).json({ message: 'Erro ao buscar dados do Pokémon.' });
   }
 });
 
