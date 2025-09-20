@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -37,7 +37,7 @@ export default function ApiWidgets() {
     setGuess('');
     setMessage('');
     try {
-      const response = await axios.get('http://localhost:3333/api/widgets/pokemon', authHeader);
+      const response = await axios.get('/api/widgets/pokemon', authHeader);
       setPokemon(response.data);
     } catch (error) {
       console.error('Não foi possível carregar um novo Pokémon.', error);
@@ -50,7 +50,7 @@ export default function ApiWidgets() {
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
-        const weatherRes = await axios.get('http://localhost:3333/api/widgets/weather', authHeader);
+        const weatherRes = await axios.get('/api/widgets/weather', authHeader);
         setWeather(weatherRes.data);
       } catch (error) {
         console.error("Falha ao buscar clima:", error);
@@ -81,7 +81,7 @@ export default function ApiWidgets() {
     e.preventDefault();
     setLoadingGithub(true);
     try {
-      const response = await axios.get(`http://localhost:3333/api/widgets/github?user=${githubUser}`, authHeader);
+      const response = await axios.get(`/api/widgets/github?user=${githubUser}`, authHeader);
       setRepos(response.data);
     }      catch (error) {
   console.error("Falha ao buscar repositórios:", error);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import { axiosInstance as axios } from '../api/axios'
 import { useAuth } from '../context/AuthContext';
 
 export default function NotesWidget() {
@@ -24,7 +24,7 @@ export default function NotesWidget() {
     const fetchNotes = async () => {
       try {
         setError(null);
-        const response = await axios.get('http://localhost:3333/api/notes', authHeader);
+        const response = await axios.get('/api/notes', authHeader);
         setNotes(response.data);
       } catch (err) {
         console.error('Falha ao buscar notas:', err);
@@ -41,7 +41,7 @@ export default function NotesWidget() {
 
     try {
       setError(null);
-      const response = await axios.post('http://localhost:3333/api/notes', { title, content }, authHeader);
+      const response = await axios.post('/api/notes', { title, content }, authHeader);
       
       // Atualização otimista da UI: adiciona a nova nota ao estado imediatamente.
       setNotes(prevNotes => [response.data, ...prevNotes]);
@@ -61,7 +61,7 @@ export default function NotesWidget() {
     setNotes(prevNotes => prevNotes.filter((note) => note.id !== noteId));
 
     try {
-      await axios.delete(`http://localhost:3333/api/notes/${noteId}`, authHeader);
+      await axios.delete(`/api/notes/${noteId}`, authHeader);
     } catch (err) {
       console.error('Falha ao deletar nota:', err);
       setError('Falha ao deletar a nota. Restaurando lista.');

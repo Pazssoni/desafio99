@@ -12,7 +12,11 @@ const app = express();
 const prisma = new PrismaClient();
 
 
-app.use(cors()); 
+app.use(cors({
+  origin: 'http://localhost:5173', // Permite requisições apenas desta origem
+  credentials: true,                // Permite o envio de cookies
+}));
+
 app.use(express.json()); 
 app.use(cookieParser());
 
@@ -114,6 +118,42 @@ app.post('/api/auth/login', async (req, res) => {
     }
     return res.status(500).json({ message: 'Erro interno do servidor.' });
   }
+});
+
+// --- ROTA DE REFRESH TOKEN ---
+app.post('/api/auth/refresh', async (req, res) => {
+  // O cookie parser já populou req.cookies com os cookies da requisição
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token não encontrado.' });
+  }
+
+  try {
+    // Verifica se o refresh token é válido e não expirou
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+    // Gera um novo access token
+    const accessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.JWT_ACCESS_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    res.json({ accessToken });
+  } catch (error) {
+    return res.status(403).json({ message: 'Refresh token inválido ou expirado.' });
+  }
+});
+
+// --- ROTA DE LOGOUT ---
+app.post('/api/auth/logout', (req, res) => {
+  // Limpa o cookie do refresh token
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+    expires: new Date(0), // Define a data de expiração para o passado
+  });
+  res.status(200).json({ message: 'Logout realizado com sucesso.' });
 });
 
 app.get('/api/notes', protect, async (req, res) => {
