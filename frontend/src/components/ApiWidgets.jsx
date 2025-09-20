@@ -2,31 +2,26 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { axiosInstance as axios } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 
-
 const styles = {
-  container: { display: 'flex', gap: '20px', alignItems: 'flex-start' },
-  mainWidget: { flex: 2, border: '1px solid #333', padding: '1rem', borderRadius: '8px' },
-  sideWidgetsContainer: { flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' },
+  container: { display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap' },
+  mainWidget: { flex: '2 1 400px', border: '1px solid #333', padding: '1rem', borderRadius: '8px', minWidth: '300px' },
+  sideWidgetsContainer: { flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '20px', minWidth: '250px' },
   sideWidget: { border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' },
   pokemonImage: { width: '200px', height: '200px', margin: 'auto', display: 'block' },
 };
 
 export default function ApiWidgets() {
   const { token } = useAuth();
-
-  // Estados do Jogo Pokémon
   const [pokemon, setPokemon] = useState(null);
   const [guess, setGuess] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);
   const [message, setMessage] = useState('');
   const [loadingPokemon, setLoadingPokemon] = useState(true);
-
-  // Estados dos outros widgets
   const [weather, setWeather] = useState(null);
   const [githubUser, setGithubUser] = useState('reactjs');
   const [repos, setRepos] = useState([]);
   const [loadingGithub, setLoadingGithub] = useState(false);
-
+  
   const authHeader = useMemo(() => ({
     headers: { Authorization: `Bearer ${token}` },
   }), [token]);
@@ -40,52 +35,52 @@ export default function ApiWidgets() {
       const response = await axios.get('/api/widgets/pokemon', authHeader);
       setPokemon(response.data);
     } catch (error) {
-      console.error('Não foi possível carregar um novo Pokémon.', error);
+      setMessage('Could not load a new Pokémon.', error);
     } finally {
       setLoadingPokemon(false);
     }
   }, [authHeader]);
 
-  // Busca dados iniciais ao montar o componente
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         const weatherRes = await axios.get('/api/widgets/weather', authHeader);
         setWeather(weatherRes.data);
       } catch (error) {
-        console.error("Falha ao buscar clima:", error);
+        console.error("Failed to fetch weather:", error);
       }
       fetchRandomPokemon();
     };
     if (token) fetchInitialData();
   }, [token, authHeader, fetchRandomPokemon]);
 
+  /**
+   * Handles the form submission for the Pokémon guessing game.
+   * @param {React.FormEvent} e The form event.
+   */
   const handleGuess = (e) => {
     e.preventDefault();
     if (!guess || !pokemon) return;
-
-    // Normaliza a resposta do usuário para comparação
     const isCorrect = guess.toLowerCase().trim() === pokemon.name;
-    setMessage(isCorrect ? `Correto! É o ${pokemon.name}!` : 'Errado, tente novamente!');
-
+    setMessage(isCorrect ? `Correct! It's ${pokemon.name}!` : 'Wrong, try again!');
     if (isCorrect) {
       setIsRevealed(true);
-      // Prepara um novo desafio após um tempo
-      setTimeout(() => {
-        fetchRandomPokemon();
-      }, 3000); // 3 segundos
+      setTimeout(() => fetchRandomPokemon(), 3000);
     }
   };
 
+  /**
+   * Fetches GitHub repositories for the specified user.
+   * @param {React.FormEvent} e The form event.
+   */
   const handleFetchGithub = async (e) => {
     e.preventDefault();
     setLoadingGithub(true);
     try {
       const response = await axios.get(`/api/widgets/github?user=${githubUser}`, authHeader);
       setRepos(response.data);
-    }      catch (error) {
-  console.error("Falha ao buscar repositórios:", error);
-      setRepos([]);
+    } catch (error) {
+      setRepos([error]);
     } finally {
       setLoadingGithub(false);
     }
@@ -93,44 +88,41 @@ export default function ApiWidgets() {
 
   return (
     <div style={styles.container}>
-      {/* Pokémon Widget (Destaque) */}
       <div style={styles.mainWidget}>
-        <h2>Quem é esse Pokémon?</h2>
-        {loadingPokemon ? <p>Sorteando um Pokémon...</p> : pokemon && (
+        <h2>Who's That Pokémon?</h2>
+        {loadingPokemon ? <p>Drawing a Pokémon...</p> : pokemon && (
           <div>
             <img 
               src={pokemon.image} 
-              alt="Pokémon misterioso" 
+              alt="Mystery Pokémon" 
               style={{ ...styles.pokemonImage, filter: isRevealed ? 'none' : 'brightness(0)' }} 
             />
-            <form onSubmit={handleGuess}>
+            <form onSubmit={handleGuess} style={{textAlign: 'center'}}>
               <input 
                 type="text" 
                 value={guess} 
                 onChange={e => setGuess(e.target.value)} 
-                placeholder="Digite o nome"
+                placeholder="Enter the name"
                 disabled={isRevealed}
-                style={{width: '100%', padding: '8px'}}
+                style={{width: '80%', padding: '8px', marginRight: '10px'}}
               />
-              <button type="submit" disabled={isRevealed} style={{marginTop: '10px'}}>Adivinhar!</button>
+              <button type="submit" disabled={isRevealed}>Guess!</button>
             </form>
-            {message && <p>{message}</p>}
+            {message && <p style={{textAlign: 'center', marginTop: '10px'}}>{message}</p>}
           </div>
         )}
       </div>
 
-      {/* Widgets Laterais */}
       <div style={styles.sideWidgetsContainer}>
         <div style={styles.sideWidget}>
-          <h3>Clima</h3>
-          {weather ? <p>{weather.city}: {weather.temperature}, {weather.condition}</p> : <p>Carregando...</p>}
+          <h3>Weather</h3>
+          {weather ? <p>{weather.city}: {weather.temperature}, {weather.condition}</p> : <p>Loading...</p>}
         </div>
-
         <div style={styles.sideWidget}>
-          <h3>Repos do GitHub</h3>
+          <h3>GitHub Repos</h3>
           <form onSubmit={handleFetchGithub}>
             <input type="text" value={githubUser} onChange={e => setGithubUser(e.target.value)} />
-            <button type="submit" disabled={loadingGithub}>{loadingGithub ? 'Buscando...' : 'Buscar'}</button>
+            <button type="submit" disabled={loadingGithub}>{loadingGithub ? 'Searching...' : 'Search'}</button>
           </form>
           <ul style={{ maxHeight: '150px', overflowY: 'auto', paddingLeft: '20px' }}>
             {repos.map(repo => <li key={repo.id}><a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}</a></li>)}
