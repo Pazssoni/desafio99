@@ -30,8 +30,8 @@ Kortex is a comprehensive full-stack application built to showcase modern web de
 
 ### 1. Clone the Repository
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd <PROJECT_FOLDER_NAME>
+git clone https://github.com/Pazssoni/desafio99.git
+cd desafio99
 ```
 
 ### 2. Run the Full Setup Command
