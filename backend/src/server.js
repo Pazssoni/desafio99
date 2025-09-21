@@ -186,6 +186,9 @@ app.get('/api/widgets/pokemon', protect, async (req, res) => {
 });
 
 const PORT = 3333;
-app.listen(PORT, () => {
-  console.log(` Server running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
+export default app; // Exporta o app
