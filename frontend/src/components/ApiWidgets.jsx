@@ -1,31 +1,46 @@
+/**
+ * @file Component that renders the three API-driven widgets.
+ */
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { axiosInstance as axios } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
-
-const styles = {
-  container: { display: 'flex', gap: '20px', alignItems: 'flex-start', flexWrap: 'wrap' },
-  mainWidget: { flex: '2 1 400px', border: '1px solid #333', padding: '1rem', borderRadius: '8px', minWidth: '300px' },
-  sideWidgetsContainer: { flex: '1 1 300px', display: 'flex', flexDirection: 'column', gap: '20px', minWidth: '250px' },
-  sideWidget: { border: '1px solid #ccc', padding: '1rem', borderRadius: '8px' },
-  pokemonImage: { width: '200px', height: '200px', margin: 'auto', display: 'block' },
-};
+import {
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  Heading,
+  Image,
+  Input,
+  SimpleGrid,
+  Skeleton,
+  Stack,
+  Text,
+  List,
+  ListItem,
+  ListIcon,
+} from '@chakra-ui/react';
+import { FaCloudSun, FaGithub, FaStar } from 'react-icons/fa';
 
 export default function ApiWidgets() {
   const { token } = useAuth();
+
+  // State for all widgets
   const [pokemon, setPokemon] = useState(null);
   const [guess, setGuess] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);
   const [message, setMessage] = useState('');
   const [loadingPokemon, setLoadingPokemon] = useState(true);
   const [weather, setWeather] = useState(null);
-  const [githubUser, setGithubUser] = useState('reactjs');
+  const [githubUser, setGithubUser] = useState('facebook');
   const [repos, setRepos] = useState([]);
   const [loadingGithub, setLoadingGithub] = useState(false);
   
-  const authHeader = useMemo(() => ({
-    headers: { Authorization: `Bearer ${token}` },
-  }), [token]);
+  const authHeader = useMemo(() => ({ headers: { Authorization: `Bearer ${token}` } }), [token]);
 
+  /**
+   * Fetches a new random Pokémon for the game, resetting the game state.
+   */
   const fetchRandomPokemon = useCallback(async () => {
     setLoadingPokemon(true);
     setIsRevealed(false);
@@ -34,24 +49,20 @@ export default function ApiWidgets() {
     try {
       const response = await axios.get('/api/widgets/pokemon', authHeader);
       setPokemon(response.data);
-    } catch (error) {
-      setMessage('Could not load a new Pokémon.', error);
-    } finally {
-      setLoadingPokemon(false);
-    }
+    } catch (error) { setMessage(error)}
+    finally { setLoadingPokemon(false); }
   }, [authHeader]);
 
   useEffect(() => {
+    if (!token) return;
     const fetchInitialData = async () => {
       try {
         const weatherRes = await axios.get('/api/widgets/weather', authHeader);
         setWeather(weatherRes.data);
-      } catch (error) {
-        console.error("Failed to fetch weather:", error);
-      }
+      } catch (error) { console.error("Failed to fetch weather:", error); }
       fetchRandomPokemon();
     };
-    if (token) fetchInitialData();
+    fetchInitialData();
   }, [token, authHeader, fetchRandomPokemon]);
 
   /**
@@ -79,56 +90,48 @@ export default function ApiWidgets() {
     try {
       const response = await axios.get(`/api/widgets/github?user=${githubUser}`, authHeader);
       setRepos(response.data);
-    } catch (error) {
-      setRepos([error]);
-    } finally {
-      setLoadingGithub(false);
-    }
+    } catch (error) { setRepos(error); } 
+    finally { setLoadingGithub(false); }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.mainWidget}>
-        <h2>Who's That Pokémon?</h2>
-        {loadingPokemon ? <p>Drawing a Pokémon...</p> : pokemon && (
-          <div>
-            <img 
-              src={pokemon.image} 
-              alt="Mystery Pokémon" 
-              style={{ ...styles.pokemonImage, filter: isRevealed ? 'none' : 'brightness(0)' }} 
-            />
-            <form onSubmit={handleGuess} style={{textAlign: 'center'}}>
-              <input 
-                type="text" 
-                value={guess} 
-                onChange={e => setGuess(e.target.value)} 
-                placeholder="Enter the name"
-                disabled={isRevealed}
-                style={{width: '80%', padding: '8px', marginRight: '10px'}}
-              />
-              <button type="submit" disabled={isRevealed}>Guess!</button>
-            </form>
-            {message && <p style={{textAlign: 'center', marginTop: '10px'}}>{message}</p>}
-          </div>
-        )}
-      </div>
+    <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
+      <Box gridColumn={{ base: 'auto', lg: 'span 2' }} bg="gray.700" p={6} borderRadius="lg" boxShadow="lg">
+        <Heading as="h2" size="lg" mb={4} color="cyan.400">Trainer's Challenge</Heading>
+        <Skeleton isLoaded={!loadingPokemon} h="200px" mb={4} borderRadius="md">
+          {pokemon && <Image src={pokemon.image} alt="Mystery Pokémon" boxSize="200px" mx="auto" filter={isRevealed ? 'none' : 'brightness(0)'} transition="filter 0.5s" />}
+        </Skeleton>
+        <Stack as="form" direction="row" onSubmit={handleGuess}>
+          <Input placeholder="Enter the name" value={guess} onChange={e => setGuess(e.target.value)} disabled={isRevealed || loadingPokemon} />
+          <Button type="submit" colorScheme="cyan" isLoading={loadingPokemon} isDisabled={isRevealed}>Guess!</Button>
+        </Stack>
+        {message && <Text mt={2} color={message.startsWith('Correct') ? 'green.300' : 'red.300'}>{message}</Text>}
+      </Box>
 
-      <div style={styles.sideWidgetsContainer}>
-        <div style={styles.sideWidget}>
-          <h3>Weather</h3>
-          {weather ? <p>{weather.city}: {weather.temperature}, {weather.condition}</p> : <p>Loading...</p>}
-        </div>
-        <div style={styles.sideWidget}>
-          <h3>GitHub Repos</h3>
-          <form onSubmit={handleFetchGithub}>
-            <input type="text" value={githubUser} onChange={e => setGithubUser(e.target.value)} />
-            <button type="submit" disabled={loadingGithub}>{loadingGithub ? 'Searching...' : 'Search'}</button>
-          </form>
-          <ul style={{ maxHeight: '150px', overflowY: 'auto', paddingLeft: '20px' }}>
-            {repos.map(repo => <li key={repo.id}><a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}</a></li>)}
-          </ul>
-        </div>
-      </div>
-    </div>
+      <Stack spacing={6}>
+        <Box bg="gray.700" p={6} borderRadius="lg" boxShadow="lg">
+          <Flex align="center" mb={2}>
+            <FaCloudSun color="#4FD1C5" />
+            <Heading as="h3" size="md" ml={2}>Weather</Heading>
+          </Flex>
+          <Skeleton isLoaded={!!weather}><Text>{weather ? `${weather.city}: ${weather.temperature}, ${weather.condition}` : 'Loading...'}</Text></Skeleton>
+        </Box>
+        <Box bg="gray.700" p={6} borderRadius="lg" boxShadow="lg">
+           <Flex align="center" mb={4}>
+            <FaGithub />
+            <Heading as="h3" size="md" ml={2}>GitHub Repos</Heading>
+          </Flex>
+          <Stack as="form" direction="row" mb={4} onSubmit={handleFetchGithub}>
+            <Input size="sm" value={githubUser} onChange={e => setGithubUser(e.target.value)} />
+            <Button size="sm" type="submit" isLoading={loadingGithub}>Search</Button>
+          </Stack>
+          <Skeleton isLoaded={!loadingGithub}>
+            <List spacing={2} maxHeight="150px" overflowY="auto">
+              {repos.map(repo => <ListItem key={repo.id}><ListIcon as={FaStar} color="yellow.400" /> <a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}</a></ListItem>)}
+            </List>
+          </Skeleton>
+        </Box>
+      </Stack>
+    </SimpleGrid>
   );
 }

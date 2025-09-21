@@ -1,5 +1,10 @@
+  /**
+   * Handles the registration form submission.
+   * @param {React.FormEvent} e The form event.
+   */
 import { useState } from 'react';
 import { axiosInstance as axios } from '../api/axios';
+import { Button, FormControl, FormLabel, Input, Stack, Alert, AlertIcon } from '@chakra-ui/react';
 
 export default function RegisterForm() {
   const [name, setName] = useState('');
@@ -7,58 +12,44 @@ export default function RegisterForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  /**
-   * Handles the registration form submission.
-   * @param {React.FormEvent} e The form event.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
+    setIsLoading(true);
     try {
       await axios.post('/api/auth/register', { name, email, password });
-      setSuccess('Registration successful! You can now log in.');
+      setSuccess('Registration successful! Please switch to the Login tab.');
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Register</h3>
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-        />
-      </div>
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div style={{ marginBottom: '10px' }}>
-        <input
-          type="password"
-          placeholder="Password (min. 8 characters)"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      <button type="submit">Register</button>
-      {error && <p style={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>{error}</p>}
-      {success && <p style={{ color: 'green', fontSize: '14px', marginTop: '10px' }}>{success}</p>}
-    </form>
+    <Stack as="form" spacing={4} onSubmit={handleSubmit}>
+      <FormControl id="register-name">
+        <FormLabel>Name</FormLabel>
+        <Input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+      </FormControl>
+      <FormControl id="register-email">
+        <FormLabel>Email address</FormLabel>
+        <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      </FormControl>
+      <FormControl id="register-password">
+        <FormLabel>Password</FormLabel>
+        <Input type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      </FormControl>
+      {/* CORREÇÃO APLICADA AQUI */}
+      <Button type="submit" colorScheme="cyan" variant="outline" isLoading={isLoading} _hover={{ bg: 'cyan.500', color: 'white' }}>
+        Register
+      </Button>
+      {error && <Alert status="error" borderRadius="md"><AlertIcon />{error}</Alert>}
+      {success && <Alert status="success" borderRadius="md"><AlertIcon />{success}</Alert>}
+    </Stack>
   );
 }

@@ -1,6 +1,25 @@
+/**
+ * @file A widget for creating, displaying, and deleting user notes.
+ */
 import { useState, useEffect, useMemo } from 'react';
 import { axiosInstance as axios } from '../api/axios';
 import { useAuth } from '../context/AuthContext';
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Heading,
+  IconButton,
+  Input,
+  Stack,
+  Textarea,
+  Alert,
+  AlertIcon,
+  SimpleGrid,
+  Text,
+} from '@chakra-ui/react';
+import { FaTrash } from 'react-icons/fa';
 
 export default function NotesWidget() {
   const [notes, setNotes] = useState([]);
@@ -9,9 +28,7 @@ export default function NotesWidget() {
   const [error, setError] = useState(null);
   const { token } = useAuth();
 
-  const authHeader = useMemo(() => ({
-    headers: { Authorization: `Bearer ${token}` },
-  }), [token]);
+  const authHeader = useMemo(() => ({ headers: { Authorization: `Bearer ${token}` } }), [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -20,10 +37,7 @@ export default function NotesWidget() {
         setError(null);
         const response = await axios.get('/api/notes', authHeader);
         setNotes(response.data);
-      } catch (err) {
-        console.error('Failed to fetch notes:', err);
-        setError('Could not load notes.');
-      }
+      } catch (error){ setError(error);}
     };
     fetchNotes();
   }, [token, authHeader]);
@@ -41,10 +55,7 @@ export default function NotesWidget() {
       setNotes(prevNotes => [response.data, ...prevNotes]);
       setTitle('');
       setContent('');
-    } catch (err) {
-      console.error('Failed to create note:', err);
-      setError('Failed to create note.');
-    }
+    } catch (error){  setError(error)};
   };
 
   /**
@@ -56,51 +67,52 @@ export default function NotesWidget() {
     setNotes(prevNotes => prevNotes.filter((note) => note.id !== noteId));
     try {
       await axios.delete(`/api/notes/${noteId}`, authHeader);
-    } catch (err) {
-      console.error('Failed to delete note:', err);
-      setError('Failed to delete note. Reverting changes.');
+    } catch (error){ 
+      setError(error)
       setNotes(originalNotes);
     }
   };
 
   return (
-    <div style={{ border: '1px solid #333', padding: '1.5rem', marginTop: '1.5rem', borderRadius: '8px' }}>
-      <h2>My Notes</h2>
-      <form onSubmit={handleSubmit} style={{ marginBottom: '1.5rem' }}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          style={{ display: 'block', width: '100%', padding: '8px', marginBottom: '10px' }}
-        />
-        <textarea
-          placeholder="Content..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-          style={{ display: 'block', width: '100%', padding: '8px', marginBottom: '10px', minHeight: '100px', fontFamily: 'inherit' }}
-        />
-        <button type="submit">Save Note</button>
-        {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
-      </form>
-      
-      <div>
-        {notes.length === 0 ? (
-          <p>No notes found.</p>
-        ) : (
-          notes.map((note) => (
-            <div key={note.id} style={{ borderTop: '1px solid #eee', paddingTop: '1rem', marginBottom: '1rem' }}>
-              <h3>{note.title}</h3>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{note.content}</p>
-              <button onClick={() => handleDelete(note.id)} style={{ background: 'transparent', border: '1px solid red', color: 'red', cursor: 'pointer' }}>
-                Delete
-              </button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+    <Box bg="gray.700" p={6} borderRadius="lg" boxShadow="lg">
+      <Heading as="h2" size="lg" mb={4} color="cyan.400">Quick Notes</Heading>
+      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
+        <Stack as="form" spacing={4} onSubmit={handleSubmit}>
+          <FormControl isRequired>
+            <FormLabel>Title</FormLabel>
+            <Input placeholder="Note title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </FormControl>
+          <FormControl isRequired>
+            <FormLabel>Content</FormLabel>
+            <Textarea placeholder="What's on your mind?" value={content} onChange={(e) => setContent(e.target.value)} />
+          </FormControl>
+          <Button type="submit" colorScheme="cyan">Save Note</Button>
+          {error && <Alert status="error" borderRadius="md"><AlertIcon />{error}</Alert>}
+        </Stack>
+        <Box maxHeight="400px" overflowY="auto" p={2}>
+          {notes.length === 0 ? (
+            <Text color="gray.400">No notes found. Create one!</Text>
+          ) : (
+            notes.map((note) => (
+              <Box key={note.id} borderWidth="1px" borderColor="gray.600" borderRadius="md" p={4} mb={4} position="relative">
+                <IconButton
+                  icon={<FaTrash />}
+                  size="sm"
+                  variant="ghost"
+                  colorScheme="red"
+                  position="absolute"
+                  top={2}
+                  right={2}
+                  onClick={() => handleDelete(note.id)}
+                  aria-label="Delete note"
+                />
+                <Heading as="h4" size="md">{note.title}</Heading>
+                <Text mt={2} whiteSpace="pre-wrap">{note.content}</Text>
+              </Box>
+            ))
+          )}
+        </Box>
+      </SimpleGrid>
+    </Box>
   );
 }

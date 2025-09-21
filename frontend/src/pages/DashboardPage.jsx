@@ -4,17 +4,25 @@
 import { useAuth } from '../context/AuthContext';
 import NotesWidget from '../components/NotesWidget';
 import ApiWidgets from '../components/ApiWidgets';
+import {
+  Container,
+  Flex,
+  Heading,
+  Button,
+  Divider,
+} from '@chakra-ui/react';
 
 export default function DashboardPage() {
   const { logout } = useAuth();
   return (
-    <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '1200px', margin: 'auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h1>Dashboard</h1>
-        <button onClick={logout}>Logout</button>
-      </div>
+    <Container maxW="container.xl" py={8}>
+      <Flex justifyContent="space-between" alignItems="center" mb={8}>
+        <Heading as="h1" color="cyan.400">Kortex</Heading>
+        <Button onClick={logout} colorScheme="red" variant="outline">Logout</Button>
+      </Flex>
       <ApiWidgets />
+      <Divider my={8} borderColor="gray.600" />
       <NotesWidget />
-    </div>
+    </Container>
   );
 }

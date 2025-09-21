@@ -33,7 +33,7 @@ const swaggerOptions = {
         bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       },
     },
-    // A DEFINIÇÃO COMPLETA DAS ROTAS VEM AQUI:
+    
     paths: {
       '/api/auth/register': {
         post: {
@@ -204,7 +204,7 @@ const swaggerOptions = {
       },
     },
   },
-  apis: [], // Deixamos vazio pois a definição já está completa acima
+  apis: [], 
 };
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 
