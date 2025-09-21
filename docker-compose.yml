@@ -10,6 +10,11 @@ services:
       - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d x99db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db_test:
     image: postgres
@@ -23,6 +28,13 @@ services:
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
 
+  # NOVO SERVIÇO REDIS
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - '6379:6379'
+
   backend:
     build: ./backend
     restart: always
@@ -30,17 +42,19 @@ services:
       - '3333:3333'
     environment:
       DATABASE_URL: postgresql://user:password@db:5432/x99db?schema=public
+      REDIS_URL: redis://redis:6379 
       JWT_ACCESS_SECRET: "greninjaemelhorquecharizardmilvezes"
       JWT_REFRESH_SECRET: "meuarceusporfavormeperdoe"
     depends_on:
-      - db
+      db: 
+        condition: service_healthy
 
   frontend:
     build: ./frontend
     restart: always
     ports:
       - '8080:80'
-    depends_on: 
+    depends_on:
       - backend
 
 volumes:

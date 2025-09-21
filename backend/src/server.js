@@ -11,6 +11,8 @@ import cookieParser from 'cookie-parser';
 import axios from 'axios';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+import crypto from 'crypto'; 
+import redis from './redisClient.js'; 
 import { protect } from './authMiddleware.js';
 
 // --- Swagger Configuration ---
@@ -218,6 +220,9 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+
+
 app.post('/api/auth/register', async (req, res) => {
   try {
     const userSchema = z.object({ name: z.string().min(3), email: z.string().email(), password: z.string().min(8) });
@@ -241,12 +246,20 @@ app.post('/api/auth/login', async (req, res) => {
     if (!user) return res.status(401).json({ message: 'Invalid credentials.' });
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(401).json({ message: 'Invalid credentials.' });
+    
     const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+    
+    
+    const refreshToken = crypto.randomBytes(64).toString('hex');
+    
+    await redis.set(refreshToken, user.id, 'EX', 7 * 24 * 60 * 60);
+   
+
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.status(200).json({ accessToken });
   } catch (error) {
     if (error instanceof z.ZodError) return res.status(400).json({ errors: error.errors });
+    console.error('Login Error:', error);
     return res.status(500).json({ message: 'Internal server error.' });
   }
 });
@@ -254,20 +267,37 @@ app.post('/api/auth/login', async (req, res) => {
 app.post('/api/auth/refresh', async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.status(401).json({ message: 'Refresh token not found.' });
+
   try {
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
+   
+    const userId = await redis.get(refreshToken);
+
+    if (!userId) {
+      return res.status(403).json({ message: 'Invalid or expired refresh token.' });
+    }
+    
+
+    const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
     res.json({ accessToken });
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid or expired refresh token.' });
+    console.error('Refresh Error:', error);
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 });
 
-app.post('/api/auth/logout', (req, res) => {
+app.post('/api/auth/logout', async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+  
+  
+  if (refreshToken) {
+    // Delete the token from Redis to invalidate the session
+    await redis.del(refreshToken);
+  }
+  
+
   res.cookie('refreshToken', '', { httpOnly: true, expires: new Date(0) });
   res.status(200).json({ message: 'Logout successful.' });
 });
-
 app.get('/api/notes', protect, async (req, res) => {
   try {
     const notes = await prisma.note.findMany({ where: { authorId: req.userId }, orderBy: { createdAt: 'desc' } });

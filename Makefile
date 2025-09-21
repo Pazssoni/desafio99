@@ -8,6 +8,14 @@ up:
 down:
 	docker-compose down
 
+# Runs the full setup process: starts containers, waits, applies migrations, and seeds.
+setup: up
+	@echo "Waiting for database to be healthy..."
+	@timeout /t 5 > NUL
+	$(MAKE) migrate
+	$(MAKE) seed
+	@echo "Setup complete! Application is ready at http://localhost:8080"
+
 # Apply database migrations to the development database.
 migrate:
 	docker-compose exec backend npx prisma migrate deploy
