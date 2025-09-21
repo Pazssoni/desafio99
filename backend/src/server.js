@@ -211,13 +211,13 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 const app = express();
 const prisma = new PrismaClient();
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({
+  origin: ['http://localhost:8080', 'http://localhost:5173'],
+  credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-
-// --- AS ROTAS CONTINUAM IGUAIS, AGORA SEM OS COMENTÁRIOS SWAGGER ---
-
 app.post('/api/auth/register', async (req, res) => {
   try {
     const userSchema = z.object({ name: z.string().min(3), email: z.string().email(), password: z.string().min(8) });

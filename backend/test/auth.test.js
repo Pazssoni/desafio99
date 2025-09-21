@@ -11,24 +11,23 @@ describe('Auth Endpoints', () => {
     password: 'password1234',
   };
 
-  // Runs before all tests in this file
+  
   beforeAll(async () => {
-    // Clean up database before starting
+    
     await prisma.note.deleteMany({});
     await prisma.user.deleteMany({});
 
-    // Create a user to be used in login tests
+    
     await request(app).post('/api/auth/register').send(testUser);
   });
 
-  // Runs after all tests in this file
+  
   afterAll(async () => {
     await prisma.$disconnect();
   });
 
   describe('POST /api/auth/register', () => {
-    // Note: The user from the first test is created in beforeAll.
-    // We need a different user for the successful registration test here.
+    
     const newUser = {
       name: 'New Register User',
       email: 'new.register@example.com',
@@ -49,7 +48,7 @@ describe('Auth Endpoints', () => {
     it('should return 400 if email is already in use', async () => {
       const response = await request(app)
         .post('/api/auth/register')
-        .send({ ...newUser, email: testUser.email }); // Using an existing email
+        .send({ ...newUser, email: testUser.email }); 
 
       expect(response.status).toBe(400);
       expect(response.body.message).toBe('Email already in use.');
@@ -67,7 +66,7 @@ describe('Auth Endpoints', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('accessToken');
-      // Checks if the httpOnly cookie for the refresh token was set
+      
       expect(response.headers['set-cookie']).toBeDefined();
       expect(response.headers['set-cookie'][0]).toContain('refreshToken=');
     });
@@ -92,7 +91,7 @@ describe('Auth Endpoints', () => {
     });
 
     it('should allow access to a protected route with a valid token', async () => {
-      // First, log in to get a token
+      
       const loginRes = await request(app)
         .post('/api/auth/login')
         .send({
@@ -102,13 +101,13 @@ describe('Auth Endpoints', () => {
       
       const token = loginRes.body.accessToken;
 
-      // Then, use the token to access the protected route
+      
       const response = await request(app)
         .get('/api/notes')
-        .set('Authorization', `Bearer ${token}`); // Set the auth header
+        .set('Authorization', `Bearer ${token}`); 
 
       expect(response.status).toBe(200);
-      expect(response.body).toBeInstanceOf(Array); // Expect an array of notes
+      expect(response.body).toBeInstanceOf(Array); 
     });
   });
 });

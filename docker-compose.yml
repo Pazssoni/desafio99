@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # Banco de dados 
   db:
     image: postgres
     restart: always
@@ -14,7 +11,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Banco de dados ISOLADO 
   db_test:
     image: postgres
     restart: always
@@ -23,11 +19,10 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: x99db_test
     ports:
-      - '5433:5432' 
+      - '5433:5432'
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
 
-  #Backend
   backend:
     build: ./backend
     restart: always
@@ -40,12 +35,13 @@ services:
     depends_on:
       - db
 
-  #Frontend
   frontend:
     build: ./frontend
     restart: always
     ports:
       - '8080:80'
+    depends_on: 
+      - backend
 
 volumes:
   postgres_data:

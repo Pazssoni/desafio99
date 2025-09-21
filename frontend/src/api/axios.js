@@ -1,6 +1,6 @@
 /**
  * @file Centralized Axios instance configuration.
- * This instance is pre-configured with the backend's base URL and to send credentials (cookies).
+ * This instance is pre-configured to communicate with the backend via localhost.
  */
 import axios from 'axios';
 
