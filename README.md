@@ -47,7 +47,12 @@ make setup
 * **Frontend Application:** [http://localhost:8080](http://localhost:8080)
 * **API Documentation (Swagger):** [http://localhost:3333/api-docs](http://localhost:3333/api-docs)
 
+## Test User Credentials
 
+After running `make setup`, you can log in with the following credentials:
+
+* **Email:** `test@example.com`
+* **Password:** `password123`
 
 ## Useful Commands
 
