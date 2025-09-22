@@ -1,3 +1,5 @@
+# .github/workflows/ci.yml
+
 name: Backend CI Pipeline
 
 on:
@@ -25,6 +27,11 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -43,6 +50,7 @@ jobs:
         working-directory: ./backend
         env:
           DATABASE_URL: "postgresql://user:password@localhost:5433/x99db_test?schema=public"
+          REDIS_URL: "redis://localhost:6379"
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
 
@@ -51,5 +59,6 @@ jobs:
         working-directory: ./backend
         env:
           DATABASE_URL: "postgresql://user:password@localhost:5433/x99db_test?schema=public"
+          REDIS_URL: "redis://localhost:6379"
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
