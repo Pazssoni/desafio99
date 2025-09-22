@@ -65,6 +65,33 @@ All commands are run from the project root.
 * `make seed`: Seeds the development database with the test user.
 * `make clean`: Stops all containers and **deletes all database volumes**.
 
+## Troubleshooting
+
+### Port Conflict Errors
+
+If you see an error message similar to `Bind for 0.0.0.0:5432 failed: port is already allocated` when running `make setup`, it means another service on your machine is already using one of the ports required by this project.
+
+The default ports used are:
+* `8080`: Frontend Application
+* `3333`: Backend API
+* `5432`: Development Database (PostgreSQL)
+* `5433`: Test Database (PostgreSQL)
+* `6379`: Redis Server
+
+**To fix this**, you can either stop the conflicting service on your machine or change the port mapping in the `docker-compose.yml` file.
+
+For example, to change the frontend port from `8080` to `8081`, you would edit the `frontend` service in `docker-compose.yml`:
+
+**From:**
+
+ports:
+  - '8080:80'
+
+**To:**
+ports:
+  - '8081:80'
+
+After making the change, save the file and run `make up` again. You would then access the application at `http://localhost:8081`. The same logic applies to any other port conflict.
 
 ## Project Journey & Learnings
 
