@@ -3,7 +3,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from './config/swaggerConfig.js';
-import routes from './routes/index.js'; 
+import routes from './routes/index.js';
 
 const app = express();
 
@@ -16,6 +16,6 @@ app.use(cookieParser());
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-app.use('/api', routes);
+app.use('/api/v1', routes);
 
 export default app;

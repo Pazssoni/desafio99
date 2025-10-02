@@ -5,14 +5,7 @@ const router = Router();
 
 /**
  * @swagger
- * tags:
- * name: Auth
- * description: Authentication related endpoints
- */
-
-/**
- * @swagger
- * /api/auth/register:
+ * /api/v1/auth/register:
  * post:
  * summary: Register a new user
  * tags: [Auth]
@@ -25,7 +18,7 @@ const router = Router();
  * required: [name, email, password]
  * properties:
  * name: { type: string, example: 'John Doe' }
- * email: { type: string, format: email, example: 'john.doe@example.com' }
+ * email: { type: string, format: 'email', example: 'john.doe@example.com' }
  * password: { type: string, minLength: 8, example: 'password123' }
  * responses:
  * '201': { description: 'User registered successfully' }
@@ -35,7 +28,7 @@ router.post('/register', register);
 
 /**
  * @swagger
- * /api/auth/login:
+ * /api/v1/auth/login:
  * post:
  * summary: Login a user
  * tags: [Auth]
@@ -47,7 +40,7 @@ router.post('/register', register);
  * type: object
  * required: [email, password]
  * properties:
- * email: { type: string, format: email, example: 'test@example.com' }
+ * email: { type: string, format: 'email', example: 'test@example.com' }
  * password: { type: string, example: 'password123' }
  * responses:
  * '200': { description: 'Login successful' }
@@ -57,7 +50,7 @@ router.post('/login', login);
 
 /**
  * @swagger
- * /api/auth/refresh:
+ * /api/v1/auth/refresh:
  * post:
  * summary: Refresh the access token
  * tags: [Auth]
@@ -69,7 +62,7 @@ router.post('/refresh', refresh);
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /api/v1/auth/logout:
  * post:
  * summary: Logout a user
  * tags: [Auth]

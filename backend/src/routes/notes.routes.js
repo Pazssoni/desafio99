@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getNotes, createNote, deleteNote } from '../../controllers/notes.controller.js';
-import { protect } from '../../middlewares/auth.middleware.js'; 
+import { getNotes, createNote, deleteNote } from '../controllers/notes.controller.js';
+import { protect } from '../middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -11,7 +11,6 @@ const router = Router();
  * description: Note management endpoints
  */
 
-// Todas as rotas de notas são protegidas
 router.use(protect);
 
 /**
@@ -23,8 +22,16 @@ router.use(protect);
  * security:
  * - bearerAuth: []
  * responses:
- * '200': { description: 'A list of notes' }
- * '401': { description: 'Unauthorized' }
+ * '200':
+ * description: A list of notes
+ * '401':
+ * description: Unauthorized
+ */
+router.get('/', getNotes);
+
+/**
+ * @swagger
+ * /api/v1/notes:
  * post:
  * summary: Create a new note
  * tags: [Notes]
@@ -40,12 +47,12 @@ router.use(protect);
  * title: { type: string, example: 'My First Note' }
  * content: { type: string, example: 'This is the content of my note.' }
  * responses:
- * '201': { description: 'Note created successfully' }
- * '401': { description: 'Unauthorized' }
+ * '201':
+ * description: Note created successfully
+ * '401':
+ * description: Unauthorized
  */
-router.route('/')
-  .get(getNotes)
-  .post(createNote);
+router.post('/', createNote);
 
 /**
  * @swagger
@@ -62,11 +69,13 @@ router.route('/')
  * schema: { type: string }
  * description: The ID of the note to delete
  * responses:
- * '204': { description: 'Note deleted successfully' }
- * '401': { description: 'Unauthorized' }
- * '404': { description: 'Note not found' }
+ * '204':
+ * description: Note deleted successfully
+ * '401':
+ * description: Unauthorized
+ * '404':
+ * description: Note not found
  */
-router.route('/:id')
-  .delete(deleteNote);
+router.delete('/:id', deleteNote);
 
 export default router;

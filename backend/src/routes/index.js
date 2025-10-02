@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import v1Routes from '/v1.0/index.js';
+import authRoutes from './auth.routes.js';
+import notesRoutes from './notes.routes.js';
+import widgetsRoutes from './widgets.routes.js';
 
 const router = Router();
 
-router.use('/v1', v1Routes);
+router.use('/auth', authRoutes);
+router.use('/notes', notesRoutes);
+router.use('/widgets', widgetsRoutes);
 
 export default router;
