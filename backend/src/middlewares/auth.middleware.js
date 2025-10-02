@@ -19,7 +19,6 @@ export const protect = (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
 
-      // Attach userId to the request for subsequent route handlers
       req.userId = decoded.userId;
 
       next();
