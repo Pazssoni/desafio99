@@ -8,7 +8,7 @@ router.use(protect);
 
 /**
  * @swagger
- * /api/v1/widgets/github:
+ * /api/widgets/github:
  * get:
  * summary: Get public repositories for a GitHub user
  * tags: [Widgets]
@@ -27,7 +27,7 @@ router.get('/github', getGithubWidgetData);
 
 /**
  * @swagger
- * /api/v1/widgets/pokemon:
+ * /api/widgets/pokemon:
  * get:
  * summary: Get a random Pokémon for the game
  * tags: [Widgets]
@@ -40,7 +40,7 @@ router.get('/pokemon', getPokemonWidgetData);
 
 /**
  * @swagger
- * /api/v1/widgets/weather:
+ * /api/widgets/weather:
  * get:
  * summary: Get mock weather data
  * tags: [Widgets]

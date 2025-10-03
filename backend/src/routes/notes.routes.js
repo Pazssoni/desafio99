@@ -1,4 +1,3 @@
-// src/routes/notes.routes.js
 import { Router } from 'express';
 import { getNotes, createNote, deleteNote } from '../controllers/notes.controller.js';
 import { protect } from '../middlewares/auth.middleware.js';
@@ -9,7 +8,7 @@ router.use(protect);
 
 /**
  * @swagger
- * /api/v1/notes:
+ * /api/notes:
  *   get:
  *     summary: Get all notes for the authenticated user
  *     tags: [Notes]
@@ -25,7 +24,7 @@ router.get('/', getNotes);
 
 /**
  * @swagger
- * /api/v1/notes:
+ * /api/notes:
  *   post:
  *     summary: Create a new note
  *     tags: [Notes]
@@ -54,7 +53,7 @@ router.post('/', createNote);
 
 /**
  * @swagger
- * /api/v1/notes/{id}:
+ * /api/notes/{id}:
  *   delete:
  *     summary: Delete a specific note
  *     tags: [Notes]

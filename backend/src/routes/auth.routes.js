@@ -6,7 +6,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/v1/auth/register:
+ * /api//auth/register:
  * post:
  * summary: Register a new user
  * tags: [Auth]
@@ -42,7 +42,7 @@ router.post('/register', register);
 
 /**
  * @swagger
- * /api/v1/auth/login:
+ * /api/auth/login:
  * post:
  * summary: Login a user
  * tags: [Auth]
@@ -73,7 +73,7 @@ router.post('/login', login);
 
 /**
  * @swagger
- * /api/v1/auth/refresh:
+ * /api/auth/refresh:
  * post:
  * summary: Refresh the access token
  * tags: [Auth]
@@ -87,7 +87,7 @@ router.post('/refresh', refresh);
 
 /**
  * @swagger
- * /api/v1/auth/logout:
+ * /api/auth/logout:
  * post:
  * summary: Logout a user
  * tags: [Auth]
