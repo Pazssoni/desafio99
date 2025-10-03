@@ -1,7 +1,32 @@
+version: '3.8'
+
 services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '8080:80'
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - '3333:3333'
+    environment:
+      DATABASE_URL: "postgresql://user:password@db:5432/x99db?schema=public"
+      REDIS_URL: "redis://redis:6379"
+      JWT_ACCESS_SECRET: "your_super_secret_access_key"
+      JWT_REFRESH_SECRET: "your_super_secret_refresh_key"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   db:
-    image: postgres
-    restart: always
+    image: postgres:16.3-alpine
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -17,8 +42,7 @@ services:
       retries: 5
 
   db_test:
-    image: postgres
-    restart: always
+    image: postgres:16.3-alpine
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -28,34 +52,10 @@ services:
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
 
-  # NOVO SERVIÇO REDIS
   redis:
-    image: redis:7-alpine
-    restart: always
+    image: redis:7.2.5-alpine
     ports:
       - '6379:6379'
-
-  backend:
-    build: ./backend
-    restart: always
-    ports:
-      - '3333:3333'
-    environment:
-      DATABASE_URL: postgresql://user:password@db:5432/x99db?schema=public
-      REDIS_URL: redis://redis:6379 
-      JWT_ACCESS_SECRET: "greninjaemelhorquecharizardmilvezes"
-      JWT_REFRESH_SECRET: "meuarceusporfavormeperdoe"
-    depends_on:
-      db: 
-        condition: service_healthy
-
-  frontend:
-    build: ./frontend
-    restart: always
-    ports:
-      - '8080:80'
-    depends_on:
-      - backend
 
 volumes:
   postgres_data:
