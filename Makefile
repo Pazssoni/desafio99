@@ -1,4 +1,4 @@
-# Makefile for the X99 Project
+# Makefile for the Kortex Project
 
 # Build and start all services in detached mode.
 up:
@@ -14,7 +14,7 @@ setup: up
 	@timeout /t 5 > NUL
 	$(MAKE) migrate
 	$(MAKE) seed
-	@echo "Setup complete! Application is ready at http://localhost:8080"
+	@echo "Setup complete! Application is ready at https://localhost"
 
 # Apply database migrations to the development database.
 migrate:
