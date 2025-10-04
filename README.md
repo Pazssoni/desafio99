@@ -1,100 +1,189 @@
 # Kortex - Personal Command Center
 
-Kortex is a comprehensive full-stack application built to showcase modern web development capabilities. It features a secure, stateful authentication system and a dynamic, interactive user dashboard. This project was developed to evaluate code quality, architectural patterns, security best practices, and the ability to deliver a feature-rich, polished MVP.
+##  About the Project
 
-## Key Features
+Kortex is a full-stack application developed as a skills assessment test. The goal was to build a "Personal Command Center" — a secure and interactive dashboard for managing personal notes and viewing information from external APIs.
 
-* **Secure, Stateful Authentication:** A complete auth system with registration, login, and logout. Session persistence is managed statefully with **Redis**, leveraging short-lived JWT Access Tokens and secure, `httpOnly` Refresh Tokens.
-* **Interactive Dashboard:** A protected, single-page application experience featuring:
-    * **Quick Notes CRUD:** A full CRUD interface for personal note-taking.
-    * **"Trainer's Challenge" Game:** An interactive "Who's That Pokémon?" widget powered by the PokeAPI.
-    * **Info Hub Widgets:** Dynamically fetched data from external APIs, including mock weather data and a GitHub repository viewer.
-* **Automated Testing & CI:** An integration test suite for the backend built with **Jest & Supertest**. A **GitHub Actions** workflow automatically runs all tests on every push to ensure code integrity.
-* **Interactive API Documentation:** The backend API is fully documented using OpenAPI (Swagger), providing an interactive UI to explore and test the endpoints.
-* **Fully Containerized Environment:** The entire application stack (Frontend, Backend, PostgreSQL, Redis) is containerized with **Docker** and orchestrated with **Docker Compose**. The startup process is fully automated.
+The project was built with a focus on modern development practices, including a 100% containerized environment with Docker, a robust backend architecture (Model-Service-Controller), secure authentication using JWT and Redis, and a Continuous Integration (CI) pipeline with automated tests.
 
-## Tech Stack
+##  Key Features
 
-| Category      | Technologies                                                               |
-| :------------ | :------------------------------------------------------------------------- |
-| **Backend** | Node.js, Express, PostgreSQL, Redis, Prisma (ORM), JWT, Zod, Bcrypt.js       |
-| **Frontend** | React, Vite, Chakra UI, Axios, Framer Motion, React Icons                    |
-| **Testing** | Jest, Supertest                                                            |
-| **DevOps** | Docker, Docker Compose, Nginx, GitHub Actions, Makefile                    |
+* **Secure Authentication:** Registration and Login with JWT (Access Tokens) and Refresh Tokens managed via Redis.
+* **Interactive Dashboard:** A single page that aggregates several widgets:
+    * **Notes:** Full CRUD (Create, Read, Delete) functionality for personal notes.
+    * **GitHub Repos:** Displays the last 5 public repositories of a GitHub user.
+    * **Who's That Pokémon?:** An interactive mini-game that consumes the PokeAPI.
+    * **Weather:** A simple widget with mock weather data.
+* **Documented API:** The backend API is documented using Swagger/OpenAPI.
 
-## Getting Started
+##  Tech Stack & Architectural Decisions
 
-**Prerequisites:**
-* [Docker](https://www.docker.com/products/docker-desktop/) & Docker Compose
-* [GNU Make](https://community.chocolatey.org/packages/make) (for Makefile shortcuts)
+The choice of technologies was focused on creating a modern, secure, and scalable application.
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/Pazssoni/desafio99.git
-cd desafio99
-```
+#### **Backend**
+* **Node.js with Express:** A robust and widely used environment for building RESTful APIs.
+* **Prisma:** A modern ORM that ensures safety against SQL Injection and simplifies database migrations.
+* **PostgreSQL:** A powerful and reliable relational database.
+* **Redis:** Used for stateful session management (Refresh Tokens), allowing sessions to be instantly invalidated—a more secure architecture than pure JWTs.
+* **Zod:** For schema validation, ensuring the integrity of data entering the API.
+* **Model-Service-Controller (MSC) Architecture:** The code was structured to separate concerns, making it cleaner, more maintainable, and scalable.
 
-### 2. Run the Full Setup Command
+#### **Frontend**
+* **React with Vite:** A modern framework for building fast and reactive user interfaces.
+* **Chakra UI:** A component library that speeds up development and ensures a consistent, accessible, and professionally designed UI.
+* **Axios:** For making HTTP requests to the backend API in a centralized and organized way.
+* **React Router:** For managing client-side routing.
 
-This single command builds the Docker images, starts all services, waits for the database to be healthy, runs database migrations, and seeds the database with a test user.
+#### **DevOps**
+* **Docker & Docker Compose:** The application is 100% containerized, ensuring a consistent and easy-to-set-up development environment with a single command.
+* **Makefile:** Simplifies complex Docker commands into easy-to-use shortcuts (e.g., `make setup`).
+* **GitHub Actions (CI):** A Continuous Integration pipeline was configured to run automated tests on every `push`, ensuring code quality and stability.
+* **Local HTTPS with `mkcert`:** The development environment runs on HTTPS, simulating a real production environment and following security best practices.
 
-```bash
-make setup
-```
+##  Setup and Execution
 
-### 3. Access the Application
+### Prerequisites
+* **Docker** and **Docker Compose**
+* **Make** (On Windows, can be installed with `choco install make`)
+* **mkcert** (On Windows, can be installed with `choco install mkcert`)
 
-* **Frontend Application:** [http://localhost:8080](http://localhost:8080)
-* **API Documentation (Swagger):** [http://localhost:3333/api-docs](http://localhost:3333/api-docs)
+### Installation Steps
+1.  **Clone the repository:**
+    ```bash
+    git clone [YOUR_REPOSITORY_URL]
+    cd a
+    ```
 
-## Test User Credentials
+2.  **Generate Local SSL Certificates (First time only):**
+    ```bash
+    # Install the local Certificate Authority (may require admin privileges)
+    mkcert -install
 
-After running `make setup`, you can log in with the following credentials:
+    # Create the certs folder and the certificates for the project
+    mkdir .certs
+    mkcert -key-file ./.certs/key.pem -cert-file ./.certs/cert.pem localhost 127.0.0.1 ::1
+    ```
 
-* **Email:** `test@example.com`
-* **Password:** `password123`
+3.  **Run the Full Setup Command:**
+    This single command will build the Docker images, start all services, apply database migrations, and seed the database with a test user.
+    ```bash
+    make setup
+    ```
 
-## Useful Commands
+4.  **Access the Application:**
+    * **Frontend Application:** **[https://localhost](https://localhost)** (Your browser may show a security warning the first time. You can safely accept it.)
+    * **API Documentation (Swagger):** **http://localhost:3333/api-docs**
 
-All commands are run from the project root.
+    **Test User:**
+    * **Email:** `test@example.com`
+    * **Password:** `password123`
+
+##  Useful `Makefile` Commands
 
 * `make up`: Builds and starts all containers.
 * `make down`: Stops all containers.
-* `make logs`: Tails the logs from all running services.
-* `make test`: Runs the backend integration test suite.
-* `make seed`: Seeds the development database with the test user.
-* `make clean`: Stops all containers and **deletes all database volumes**.
+* `make clean`: Stops everything and removes all volumes (deletes database data).
+* `make logs`: Shows the real-time logs from all containers.
+* `make test`: Runs the automated backend test suite.
 
-## Troubleshooting
+##  Troubleshooting
 
-### Port Conflict Errors
+### Port Conflicts
+If you see an error like `port is already allocated` when running `make setup`, it means another service on your machine is using one of the required ports (80, 443, 3333, 5432, 5433, 6379).
 
-If you see an error message similar to `Bind for 0.0.0.0:5432 failed: port is already allocated` when running `make setup`, it means another service on your machine is already using one of the ports required by this project.
+**Solution:** Stop the conflicting service on your machine or change the corresponding port mapping in the `docker-compose.yml` file.
 
-The default ports used are:
-* `8080`: Frontend Application
-* `3333`: Backend API
-* `5432`: Development Database (PostgreSQL)
-* `5433`: Test Database (PostgreSQL)
-* `6379`: Redis Server
+# Kortex - Centro de Comando Pessoal
 
-**To fix this**, you can either stop the conflicting service on your machine or change the port mapping in the `docker-compose.yml` file.
+##  Sobre o Projeto
 
-For example, to change the frontend port from `8080` to `8081`, you would edit the `frontend` service in `docker-compose.yml`:
+O Kortex é uma aplicação full-stack desenvolvida como um teste de competências. O objetivo foi construir um "Centro de Comando Pessoal" — um dashboard seguro e interativo para gerir notas pessoais e visualizar informações de APIs externas.
 
-**From:**
+O projeto foi construído com foco em práticas de desenvolvimento modernas, incluindo um ambiente 100% containerizado com Docker, uma arquitetura de backend robusta (Model-Service-Controller), autenticação segura com JWT e Redis, e um pipeline de Integração Contínua (CI) com testes automatizados.
 
-ports:
-  - '8080:80'
+##  Funcionalidades Principais
 
-**To:**
-ports:
-  - '8081:80'
+* **Autenticação Segura:** Registo e Login com JWT (Access Tokens) e Refresh Tokens geridos via Redis.
+* **Dashboard Interativo:** Uma única página que agrega vários widgets:
+    * **Notas:** Funcionalidade completa de CRUD (Criar, Ler, Apagar) para notas pessoais.
+    * **GitHub Repos:** Visualiza os últimos 5 repositórios públicos de um utilizador do GitHub.
+    * **Who's That Pokémon?:** Um mini-jogo interativo que consome a PokeAPI.
+    * **Weather:** Um widget simples com dados meteorológicos (mock).
+* **API Documentada:** A API do backend é documentada com Swagger/OpenAPI.
 
-After making the change, save the file and run `make up` again. You would then access the application at `http://localhost:8081`. The same logic applies to any other port conflict.
+##  Stack Tecnológica & Decisões de Arquitetura
 
-## Project Journey & Learnings
+A escolha das tecnologias foi focada em criar uma aplicação moderna, segura и escalável.
 
-This project was an incredible opportunity for learning and growth. The biggest challenge, without a doubt, was the transition from a local development setup to a fully containerized system with Docker. Finding and solving the communication issues between services, especially the CORS and networking hurdles, was a complex process but taught me a great deal about the importance of a robust environment configuration.
+#### **Backend**
+* **Node.js com Express:** Um ambiente robusto e amplamente utilizado para a construção de APIs RESTful.
+* **Prisma:** Um ORM moderno que garante segurança contra SQL Injection e facilita a gestão das migrações da base de dados.
+* **PostgreSQL:** Uma base de dados relacional poderosa e confiável.
+* **Redis:** Utilizado para a gestão de sessões (Refresh Tokens), permitindo invalidar sessões de forma instantânea, uma arquitetura mais segura do que JWTs puros.
+* **Zod:** Para validação de schemas, garantindo a integridade dos dados que entram na API.
+* **Arquitetura Model-Service-Controller (MSC):** O código foi estruturado para separar responsabilidades, tornando-o mais limpo, manutenível e escalável.
 
-Another highlight was the chance to bring some creativity into the project. As a Pokémon fan, building the "Who's That Pokémon?" mini-game was a way to challenge myself to go beyond the requirements and have some fun in the process. Ultimately, the goal was to deliver not just a project that met the specifications, but one that also reflected my effort in learning and applying good practices, from automated testing to implementing security with Redis. It was a challenging but very rewarding experience.
+#### **Frontend**
+* **React com Vite:** Uma framework moderna para a construção de interfaces de utilizador rápidas e reativas.
+* **Chakra UI:** Uma biblioteca de componentes que acelera o desenvolvimento e garante uma UI consistente, acessível e com um design profissional.
+* **Axios:** Para fazer pedidos HTTP à API do backend de forma centralizada e organizada.
+* **React Router:** Para a gestão de rotas do lado do cliente (client-side routing).
+
+#### **DevOps**
+* **Docker & Docker Compose:** A aplicação é 100% containerizada, garantindo um ambiente de desenvolvimento consistente e fácil de configurar com um único comando.
+* **Makefile:** Simplifica os comandos complexos do Docker em atalhos fáceis de usar (ex: `make setup`).
+* **GitHub Actions (CI):** Um pipeline de Integração Contínua foi configurado para executar os testes automatizados a cada `push`, garantindo a qualidade e a estabilidade do código.
+* **HTTPS Local com `mkcert`:** O ambiente de desenvolvimento roda em HTTPS, simulando um ambiente de produção real e seguindo as melhores práticas de segurança.
+
+##  Configuração e Execução
+
+### Pré-requisitos
+* **Docker** e **Docker Compose**
+* **Make** (No Windows, pode ser instalado com `choco install make`)
+* **mkcert** (No Windows, pode ser instalado com `choco install mkcert`)
+
+### Passos para a Instalação
+1.  **Clone o repositório:**
+    ```bash
+    git clone [URL_DO_SEU_REPOSITÓRIO]
+    cd a
+    ```
+
+2.  **Gere os Certificados SSL Locais (Apenas na Primeira Vez):**
+    ```bash
+    # Instala a autoridade de certificação local (pode pedir permissão de administrador)
+    mkcert -install
+
+    # Cria a pasta e os certificados para o projeto
+    mkdir .certs
+    mkcert -key-file ./.certs/key.pem -cert-file ./.certs/cert.pem localhost 127.0.0.1 ::1
+    ```
+
+3.  **Execute o Comando de Setup Completo:**
+    Este comando único irá construir as imagens Docker, iniciar todos os serviços, aplicar as migrações da base de dados e criar um utilizador de teste.
+    ```bash
+    make setup
+    ```
+
+4.  **Aceda à Aplicação:**
+    * **Aplicação Frontend:** **[https://localhost](https://localhost)** (O seu navegador pode mostrar um aviso de segurança na primeira vez. Pode aceitá-lo com segurança.)
+    * **Documentação da API (Swagger):** **http://localhost:3333/api-docs**
+
+    **Utilizador de Teste:**
+    * **Email:** `test@example.com`
+    * **Password:** `password123`
+
+##  Comandos Úteis com `Makefile`
+
+* `make up`: Constrói e inicia todos os containers.
+* `make down`: Para todos os containers.
+* `make clean`: Para tudo e remove os volumes (apaga os dados das bases de dados).
+* `make logs`: Mostra os logs de todos os containers em tempo real.
+* `make test`: Executa a suíte de testes automatizados do backend.
+
+##  Troubleshooting
+
+### Conflito de Portas
+Se vir um erro como `port is already allocated` ao executar `make setup`, significa que outro serviço na sua máquina está a usar uma das portas necessárias (80, 443, 3333, 5432, 5433, 6379).
+
+**Solução:** Pare o serviço conflitante ou altere a porta correspondente no ficheiro `docker-compose.yml`.
