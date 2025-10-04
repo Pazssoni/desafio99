@@ -50,7 +50,7 @@ The choice of technologies was focused on creating a modern, secure, and scalabl
 ### Installation Steps
 1.  **Clone the repository:**
     ```bash
-    git clone [YOUR_REPOSITORY_URL]
+    git clone https://github.com/Pazssoni/desafio99.git
     cd a
     ```
 
@@ -145,7 +145,7 @@ A escolha das tecnologias foi focada em criar uma aplicação moderna, segura и
 ### Passos para a Instalação
 1.  **Clone o repositório:**
     ```bash
-    git clone [URL_DO_SEU_REPOSITÓRIO]
+    git clone https://github.com/Pazssoni/desafio99.git
     cd a
     ```
 
