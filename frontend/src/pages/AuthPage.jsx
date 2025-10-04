@@ -12,7 +12,6 @@ export default function AuthPage() {
         <Heading fontSize="3xl" textAlign="center" mb={6}>Kortex</Heading>
         <Tabs isFitted variant="enclosed-colored" colorScheme="cyan">
           <TabList>
-            {/* CORREÇÃO DE ESTILO APLICADA AQUI */}
             <Tab _selected={{ color: 'white', bg: 'cyan.600' }} color="gray.400">Login</Tab>
             <Tab _selected={{ color: 'white', bg: 'cyan.600' }} color="gray.400">Register</Tab>
           </TabList>

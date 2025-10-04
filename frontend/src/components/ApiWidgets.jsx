@@ -25,7 +25,6 @@ import { FaCloudSun, FaGithub, FaStar } from 'react-icons/fa';
 export default function ApiWidgets() {
   const { token } = useAuth();
 
-  // State for all widgets
   const [pokemon, setPokemon] = useState(null);
   const [guess, setGuess] = useState('');
   const [isRevealed, setIsRevealed] = useState(false);

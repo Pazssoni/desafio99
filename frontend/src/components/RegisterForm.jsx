@@ -44,7 +44,6 @@ export default function RegisterForm() {
         <FormLabel>Password</FormLabel>
         <Input type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} required />
       </FormControl>
-      {/* CORREÇÃO APLICADA AQUI */}
       <Button type="submit" colorScheme="cyan" variant="outline" isLoading={isLoading} _hover={{ bg: 'cyan.500', color: 'white' }}>
         Register
       </Button>
