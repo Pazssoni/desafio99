@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
    */
   const refreshLogin = useCallback(async () => {
     try {
-      const response = await axiosInstance.post('/api/auth/refresh');
+      const response = await axiosInstance.post('/auth/refresh');
       setToken(response.data.accessToken);
     } catch {
       // This block is intentionally empty.
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axiosInstance.post('/api/auth/logout');
+      await axiosInstance.post('/auth/logout');
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {

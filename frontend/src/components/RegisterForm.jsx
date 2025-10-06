@@ -20,7 +20,7 @@ export default function RegisterForm() {
     setSuccess('');
     setIsLoading(true);
     try {
-      await axios.post('/api/auth/register', { name, email, password });
+      await axios.post('/auth/register', { name, email, password });
       setSuccess('Registration successful! Please switch to the Login tab.');
     } catch (err) {
       const message = err.response?.data?.message || 'Registration failed. Please try again.';

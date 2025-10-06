@@ -46,7 +46,7 @@ export default function ApiWidgets() {
     setGuess('');
     setMessage('');
     try {
-      const response = await axios.get('/api/widgets/pokemon', authHeader);
+      const response = await axios.get('/widgets/pokemon', authHeader);
       setPokemon(response.data);
     } catch (error) { setMessage(error)}
     finally { setLoadingPokemon(false); }
@@ -56,7 +56,7 @@ export default function ApiWidgets() {
     if (!token) return;
     const fetchInitialData = async () => {
       try {
-        const weatherRes = await axios.get('/api/widgets/weather', authHeader);
+        const weatherRes = await axios.get('/widgets/weather', authHeader);
         setWeather(weatherRes.data);
       } catch (error) { console.error("Failed to fetch weather:", error); }
       fetchRandomPokemon();
@@ -87,7 +87,7 @@ export default function ApiWidgets() {
     e.preventDefault();
     setLoadingGithub(true);
     try {
-      const response = await axios.get(`/api/widgets/github?user=${githubUser}`, authHeader);
+      const response = await axios.get(`/widgets/github?user=${githubUser}`, authHeader);
       setRepos(response.data);
     } catch (error) { setRepos(error); } 
     finally { setLoadingGithub(false); }

@@ -35,7 +35,7 @@ export default function NotesWidget() {
     const fetchNotes = async () => {
       try {
         setError(null);
-        const response = await axios.get('/api/notes', authHeader);
+        const response = await axios.get('/notes', authHeader);
         setNotes(response.data);
       } catch (error){ setError(error);}
     };
@@ -51,7 +51,7 @@ export default function NotesWidget() {
     if (!title || !content) return;
     try {
       setError(null);
-      const response = await axios.post('/api/notes', { title, content }, authHeader);
+      const response = await axios.post('/notes', { title, content }, authHeader);
       setNotes(prevNotes => [response.data, ...prevNotes]);
       setTitle('');
       setContent('');
@@ -66,7 +66,7 @@ export default function NotesWidget() {
     const originalNotes = [...notes];
     setNotes(prevNotes => prevNotes.filter((note) => note.id !== noteId));
     try {
-      await axios.delete(`/api/notes/${noteId}`, authHeader);
+      await axios.delete(`/notes/${noteId}`, authHeader);
     } catch (error){ 
       setError(error)
       setNotes(originalNotes);
