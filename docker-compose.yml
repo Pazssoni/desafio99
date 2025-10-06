@@ -17,11 +17,11 @@ services:
       context: ./backend
     ports:
       - '3333:3333'
+    env_file:
+      - ./backend/.env
     environment:
       DATABASE_URL: "postgresql://user:password@db:5432/x99db?schema=public"
       REDIS_URL: "redis://redis:6379"
-      JWT_ACCESS_SECRET: "your_super_secret_access_key"
-      JWT_REFRESH_SECRET: "your_super_secret_refresh_key"
     depends_on:
       db:
         condition: service_healthy

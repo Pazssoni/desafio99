@@ -11,4 +11,9 @@ router.post('/refresh', refresh);
 
 router.post('/logout', logout);
 
+router.get('/test-route', (req, res) => {
+  res.status(200).json({ message: 'A rota de teste do backend funcionou!' });
+});
+
+
 export default router;

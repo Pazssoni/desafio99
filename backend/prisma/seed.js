@@ -15,9 +15,7 @@ async function main() {
   const name = 'Test User';
   const password = 'password123';
 
-  // Deletes the test user if it already exists to avoid conflicts
   await prisma.user.delete({ where: { email } }).catch(() => {
-    // Ignores error if user does not exist
   });
 
   const hashedPassword = await bcrypt.hash(password, 12);
