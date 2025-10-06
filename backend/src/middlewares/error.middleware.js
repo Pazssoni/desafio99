@@ -1,4 +1,4 @@
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   let { statusCode, message } = err;
 
   if (process.env.NODE_ENV === 'development') {
