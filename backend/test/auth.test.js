@@ -15,7 +15,7 @@ describe('Auth Endpoints', () => {
   beforeAll(async () => {
     await prisma.note.deleteMany({});
     await prisma.user.deleteMany({});
-    await request(app).post('/api/auth/register').send(testUser);
+    await request(app).post('/auth/register').send(testUser);
   });
 
   afterAll(async () => {
@@ -23,7 +23,7 @@ describe('Auth Endpoints', () => {
     await redis.disconnect();
   });
 
-  describe('POST /api/auth/register', () => {
+  describe('POST /auth/register', () => {
     const newUser = {
       name: 'New Register User',
       email: 'new.register@example.com',
@@ -32,7 +32,7 @@ describe('Auth Endpoints', () => {
     
     it('should register a new user successfully', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/auth/register')
         .send(newUser);
 
       expect(response.status).toBe(201);
@@ -41,7 +41,7 @@ describe('Auth Endpoints', () => {
 
     it('should return 400 if email is already in use', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/auth/register')
         .send({ ...newUser, email: testUser.email });
 
       expect(response.status).toBe(400);
@@ -49,10 +49,10 @@ describe('Auth Endpoints', () => {
     });
   });
 
-  describe('POST /api/auth/login', () => {
+  describe('POST /auth/login', () => {
     it('should login an existing user and return tokens', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/auth/login')
         .send({
           email: testUser.email,
           password: testUser.password,
@@ -65,7 +65,7 @@ describe('Auth Endpoints', () => {
 
     it('should return 401 for incorrect password', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/auth/login')
         .send({
           email: testUser.email,
           password: 'wrongpassword',
@@ -77,13 +77,13 @@ describe('Auth Endpoints', () => {
 
   describe('Protected Routes', () => {
     it('should return 401 when accessing a protected route without a token', async () => {
-      const response = await request(app).get('/api/notes');
+      const response = await request(app).get('/notes');
       expect(response.status).toBe(401);
     });
 
     it('should allow access to a protected route with a valid token', async () => {
       const loginRes = await request(app)
-        .post('/api/auth/login')
+        .post('/auth/login')
         .send({
           email: testUser.email,
           password: testUser.password,
@@ -92,7 +92,7 @@ describe('Auth Endpoints', () => {
       const token = loginRes.body.accessToken;
 
       const response = await request(app)
-        .get('/api/notes')
+        .get('/notes')
         .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
