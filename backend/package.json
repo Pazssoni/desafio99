@@ -8,7 +8,7 @@
     "dev": "nodemon src/server.js",
     "seed": "node prisma/seed.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "lint": "eslint . -c .eslintrc.js",
+    "lint": "eslint .",
     "test:prepare": "dotenv -e .env.test -- npx prisma migrate deploy"
   },
   "keywords": [],
