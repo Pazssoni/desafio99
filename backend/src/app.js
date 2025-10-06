@@ -8,10 +8,12 @@ import errorHandler from './middlewares/error.middleware.js';
 
 const app = express();
 
-app.use(cors({
-  origin: ['http://localhost:8080', 'http://localhost:5173', 'https://localhost'],
+const corsOptions = {
+  origin: ['https://localhost', 'http://localhost:8080', 'http://localhost:5173'],
   credentials: true,
-}));
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 

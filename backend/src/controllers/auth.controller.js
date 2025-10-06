@@ -55,7 +55,7 @@ export const login = asyncHandler(async (req, res) => {
   
   await redis.set(refreshToken, user.id, 'EX', 7 * 24 * 60 * 60);
 
-  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+  res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 });
   res.status(httpStatus.OK).json({ accessToken });
 });
 
@@ -63,15 +63,24 @@ export const login = asyncHandler(async (req, res) => {
  * Handles access token refresh.
  */
 export const refresh = asyncHandler(async (req, res) => {
+  console.log('--- REFRESH ROUTE TRIGGERED ---'); 
   const { refreshToken } = req.cookies;
+
   if (!refreshToken) {
+    console.error('Refresh Error: No refresh token found in cookies.'); 
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Refresh token not found.');
   }
 
+  console.log('Refresh Token from cookie:', refreshToken); 
+
   const userId = await redis.get(refreshToken);
+
   if (!userId) {
+    console.error(`Refresh Error: Token not found in Redis. Token was: ${refreshToken}`); 
     throw new ApiError(httpStatus.FORBIDDEN, 'Invalid or expired refresh token.');
   }
+
+  console.log('User ID found in Redis:', userId);
 
   const accessToken = jwt.sign({ userId }, process.env.JWT_ACCESS_SECRET, { expiresIn: '15m' });
   res.json({ accessToken });
